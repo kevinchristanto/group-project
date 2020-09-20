@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include "print.h"
+#include "menu.h"
 
 struct data
 {

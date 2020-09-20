@@ -1,5 +1,5 @@
-#ifndef PRINT_H
-#define PRINT_H
+#ifndef MENU_H
+#define MENU_H
 void clear_screen();
 void main_menu();
 void admin_menu();

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "print.h"
+#include "menu.h"
 void clear_screen()
 {
     system("clear");
