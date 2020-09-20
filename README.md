@@ -1,2 +1,2 @@
 # group-project
-kevin
+group project
