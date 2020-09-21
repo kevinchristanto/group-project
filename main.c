@@ -263,16 +263,16 @@ void view_stock(struct itemDatabase *db)
 int main() //MAIN
 {
     main_menu();
-    int options = get_input();
-    if (options == 1)
+    int opt = get_input();
+    if (opt == 1)
     {
         admin_menu();
     }
-    else if (options == 2)
+    else if (opt == 2)
     {
         buyer_menu();
     }
-    else if (options == 9)
+    else if (opt == 9)
     {
         return 0;
     }
