@@ -4,18 +4,8 @@
 #include <sqlite3.h>
 #include "db.h"
 
-// open database and do error checking
-static int open_database(sqlite3 *db) {
-    int rc = sqlite3_open("database.db", &db);
-    if (rc) {
-        fprintf(stderr, "error opening database: %s\n", sqlite3_errmsg(db));
-        exit(1);
-    }
-    return rc;
-}
-
 // used in sqlite3_exec func
-static int callback(int argc, char **argv, char **azColName) {
+static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
    for(int i = 0; i < argc; i++) {
      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
    }
@@ -27,7 +17,7 @@ static int callback(int argc, char **argv, char **azColName) {
 // insert row into products table of database
 void db_insert_products(
     sqlite3 *db, char *name, char *category, int price, int stock) {
-    int rc = open_database(db);
+    int rc = sqlite3_open("database.db", &db);
 
     char sql[128];
     char *err_msg;
@@ -44,7 +34,7 @@ void db_insert_products(
         fprintf(stderr, "SQL error: %s\n", err_msg);
         sqlite3_free(err_msg);
     } else {
-        fprintf(stdout, "Records created successfully\n");
+        fprintf(stdout, "Record created successfully\n");
     }
 
     // close connection
@@ -53,7 +43,7 @@ void db_insert_products(
 
 // delete record in products table where name = name
 void db_delete_products(sqlite3 *db, char *name) {
-    int rc = open_database(db);
+    int rc = sqlite3_open("database.db", &db);
 
     char sql[64];
     char *err_msg;
@@ -66,7 +56,7 @@ void db_delete_products(sqlite3 *db, char *name) {
         fprintf(stderr, "SQL error: %s\n", err_msg);
         sqlite3_free(err_msg);
     } else {
-        fprintf(stdout, "Records created successfully\n");
+        fprintf(stdout, "Record deleted successfully\n");
     }
 
     sqlite3_close(db);
@@ -75,7 +65,8 @@ void db_delete_products(sqlite3 *db, char *name) {
 // return string containing all columns of record from products table
 // where name = name. returns null if name not in table
 char *db_select_products(sqlite3 *db, char *name) {
-    int rc = open_database(db);
+    int rc = sqlite3_open("database.db", &db);
+
     sqlite3_stmt* stmt = 0;
     char *result = NULL;
 
@@ -116,13 +107,15 @@ char *db_select_products(sqlite3 *db, char *name) {
     return result;
 }
 
-void db_update_products(sqlite3 *db, char *name, int add){
-    int rc = open_database(db);
+// increase product stock by add in products table where name = name
+void db_update_inc_products(sqlite3 *db, char *name, int add) {
+    int rc = sqlite3_open("database.db", &db);
 
     char sql[64];
     char *err_msg;
 
-    sprintf(sql, "update products set stock = stock + %d where name = %s;", add, name);
+    sprintf(sql, "update products set stock = stock + %d where name = %s;",
+            add, name);
 
     rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
 
@@ -131,8 +124,32 @@ void db_update_products(sqlite3 *db, char *name, int add){
         sqlite3_free(err_msg);
     }
     else {
-        fprintf(stdout, "Records updated successfully\n");
+        fprintf(stdout, "Record updated successfully\n");
     }
 
     sqlite3_close(db);
 }
+
+// decrease product stock by add in products table where name = name
+void db_update_dec_products(sqlite3 *db, char *name, int dec) {
+    int rc = sqlite3_open("database.db", &db);
+
+    char sql[64];
+    char *err_msg;
+
+    sprintf(sql, "update products set stock = stock - %d where name = %s;",
+            dec, name);
+
+    rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
+
+    if (rc != SQLITE_OK){
+        fprintf(stderr, "SQL error : %s\n", err_msg);
+        sqlite3_free(err_msg);
+    }
+    else {
+        fprintf(stdout, "Record updated successfully\n");
+    }
+
+    sqlite3_close(db);
+}
+
