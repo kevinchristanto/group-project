@@ -15,7 +15,7 @@ static int open_database(sqlite3 *db) {
 }
 
 // used in sqlite3_exec func
-static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
+static int callback(int argc, char **argv, char **azColName) {
    for(int i = 0; i < argc; i++) {
      printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
    }
@@ -116,3 +116,23 @@ char *db_select_products(sqlite3 *db, char *name) {
     return result;
 }
 
+void db_update_products(sqlite3 *db, char *name, int add){
+    int rc = open_database(db);
+
+    char sql[64];
+    char *err_msg;
+
+    sprintf(sql, "update products set stock = stock + %d where name = %s;", add, name);
+
+    rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
+
+    if (rc != SQLITE_OK){
+        fprintf(stderr, "SQL error : %s\n", err_msg);
+        sqlite3_free(err_msg);
+    }
+    else {
+        fprintf(stdout, "Records updated successfully\n");
+    }
+
+    sqlite3_close(db);
+}
