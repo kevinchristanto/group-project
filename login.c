@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <unistd.h>
 void change_password();
 struct customer
 {
@@ -14,7 +15,40 @@ void clear_screen()
 {
     system("clear");
 }
-void log_in() // login to
+
+static char *get_input()  
+{
+    char *input = malloc(32);
+    fgets(input, 32, stdin);
+    return input;
+}
+
+void admin_log_in()
+{
+    clear_screen();
+    char password[] = "qwerty123"; 
+    printf("Enter your password: ");
+    char *input = get_input();
+    int counter = 0;
+    while (strcmp(password, input) != 0) 
+    {
+        counter++;
+        if (counter == 5)
+        {
+            puts("Maximum invalid tries reached! Please wait 30 seconds");
+            sleep(30); 
+            counter = 0; 
+        }
+        printf("Incorrect password!");
+        printf("Enter your password again: ");
+        free(input); 
+        input = get_input(); 
+    }
+    
+    puts("Password successfully set");
+}
+
+void user_log_in() // login to
 {
     clear_screen();
     char username[1000];
