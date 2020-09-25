@@ -18,7 +18,7 @@ struct itemDatabase
     int index;
 };
 
-char *get_input()
+char *get_input() 
 {
     char *input = malloc(32);
     fgets(input, 32, stdin);
