@@ -1,11 +1,16 @@
 #ifndef LOGIN_H
 #define LOGIN_H
 
-void change_password();
-void clear_screen();
-void admin_log_in();
-void user_log_in();
-void profile(char username[], char password[], char phone_number[]);
+// menu used to login, returns LoginResult enum as int
+int main_menu(void);
 
+// prints menu for main_menu function
+void print_main_menu(void);
+
+// login screen for admins, returns LoginResult enum from menu.h
+int admin_log_in(void);
+
+// login screen for buyers, returns LoginResult enum from menu.h
+int buyer_log_in(void);
 
 #endif
