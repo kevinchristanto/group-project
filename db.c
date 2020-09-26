@@ -14,7 +14,6 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
    return 0;
 }
 
-// insert row into products table of database
 void db_insert_products(
     sqlite3 *db, char *name, char *category, int price, int stock) {
     int rc = sqlite3_open("database.db", &db);
@@ -41,7 +40,6 @@ void db_insert_products(
     sqlite3_close(db);
 }
 
-// delete record in products table where name = name
 void db_delete_products(sqlite3 *db, char *name) {
     int rc = sqlite3_open("database.db", &db);
 
@@ -62,8 +60,6 @@ void db_delete_products(sqlite3 *db, char *name) {
     sqlite3_close(db);
 }
 
-// return string containing all columns of record from products table
-// where name = name. returns null if name not in table
 char *db_select_products(sqlite3 *db, char *name) {
     int rc = sqlite3_open("database.db", &db);
 
@@ -107,7 +103,6 @@ char *db_select_products(sqlite3 *db, char *name) {
     return result;
 }
 
-// increase product stock by add in products table where name = name
 void db_update_inc_products(sqlite3 *db, char *name, int add) {
     int rc = sqlite3_open("database.db", &db);
 
@@ -130,7 +125,6 @@ void db_update_inc_products(sqlite3 *db, char *name, int add) {
     sqlite3_close(db);
 }
 
-// decrease product stock by add in products table where name = name
 void db_update_dec_products(sqlite3 *db, char *name, int dec) {
     int rc = sqlite3_open("database.db", &db);
 
