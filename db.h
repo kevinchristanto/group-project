@@ -33,4 +33,8 @@ void db_update_inc_products(sqlite3 *db, char *name, int add);
 // decreases it
 void db_update_dec_products(sqlite3 *db, char *name, int dec);
 
+// select record from products table by category, returns all rows that
+// match as a string array in the format "{name} {price} {stock}".
+char **db_select_products_by_category(sqlite3 *db, char *category);
+
 #endif

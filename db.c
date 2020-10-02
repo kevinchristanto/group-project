@@ -147,3 +147,56 @@ void db_update_dec_products(sqlite3 *db, char *name, int dec) {
     sqlite3_close(db);
 }
 
+char **db_select_products_by_category(sqlite3 *db, char *category) {
+    int rc = sqlite3_open("database.db", &db);
+
+    sqlite3_stmt* stmt = 0;
+
+    char sql[128];
+    sprintf(sql,
+            "select name, price, stock \
+            from products where category = '%s'", category);
+
+    rc = sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
+
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(db));
+    } else {
+        // get number of rows
+        int n_rows = 0;
+        while (sqlite3_step(stmt) == SQLITE_ROW) n_rows++;
+
+        // initialize string array with n_rows elements
+        char **result_list = malloc((n_rows + 1) * sizeof(char *));
+        int i = 0;
+
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            // get size of result str
+            ssize_t needed = snprintf(
+                NULL, 0, "%s %s %s",
+                sqlite3_column_text(stmt, 0),
+                sqlite3_column_text(stmt, 1),
+                sqlite3_column_text(stmt, 2)
+            ) + 1;
+
+            char *result = malloc(needed);
+            sprintf(result,
+                "%s %s %s",
+                sqlite3_column_text(stmt, 0),
+                sqlite3_column_text(stmt, 1),
+                sqlite3_column_text(stmt, 2));
+            result[needed - 1] = '\0';
+
+            // insert record string into string array
+            result_list[i] = malloc(needed);
+            strcpy(result_list[i++], result);
+        }
+
+        sqlite3_close(db);
+        return result_list;
+    }
+
+    sqlite3_close(db);
+    return NULL;
+}
+
