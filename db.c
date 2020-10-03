@@ -109,7 +109,7 @@ void db_update_inc_products(sqlite3 *db, char *name, int add) {
     char sql[64];
     char *err_msg;
 
-    sprintf(sql, "update products set stock = stock + %d where name = %s;",
+    sprintf(sql, "update products set stock = stock + %d where name = '%s';",
             add, name);
 
     rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
@@ -131,7 +131,7 @@ void db_update_dec_products(sqlite3 *db, char *name, int dec) {
     char sql[64];
     char *err_msg;
 
-    sprintf(sql, "update products set stock = stock - %d where name = %s;",
+    sprintf(sql, "update products set stock = stock - %d where name = '%s';",
             dec, name);
 
     rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
@@ -198,5 +198,141 @@ char **db_select_products_by_category(sqlite3 *db, char *category) {
 
     sqlite3_close(db);
     return NULL;
+}
+
+char *db_select_user(sqlite3 *db, char *email, char *phone) {
+    int rc = sqlite3_open("database.db", &db);
+
+    sqlite3_stmt* stmt = 0;
+    char *result = NULL;
+
+    char sql[128];
+    if (phone == NULL) {
+        sprintf(sql,
+                "select name, balance \
+                from users where email = '%s'", email);
+    } else {
+        sprintf(sql,
+                "select name, balance \
+                from users where phone_number = '%s'", phone);
+    }
+
+    rc = sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
+
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(db));
+    } else {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            // get size of result str
+            ssize_t needed = snprintf(
+                NULL, 0, "%s %s",
+                sqlite3_column_text(stmt, 0),
+                sqlite3_column_text(stmt, 1)
+            );
+
+            result = malloc(needed + 1);
+            sprintf(result,
+                "%s %s",
+                sqlite3_column_text(stmt, 0),
+                sqlite3_column_text(stmt, 1));
+        }
+    }
+
+    sqlite3_close(db);
+    return result;
+}
+
+void db_update_inc_balance(sqlite3 *db, char *email, char *phone, int add) {
+    int rc = sqlite3_open("database.db", &db);
+
+    char sql[256];
+    char *err_msg;
+
+    if (phone == NULL) {
+        sprintf(sql, "update users \
+                set balance = balance + %d where email = '%s';",
+                add, email);
+    } else {
+        sprintf(sql, "update users \
+                set balance = balance + %d where phone_number = '%s';",
+                add, phone);
+    }
+
+    rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
+
+    if (rc != SQLITE_OK){
+        fprintf(stderr, "SQL error : %s\n", err_msg);
+        sqlite3_free(err_msg);
+    }
+    else {
+        fprintf(stdout, "Record updated successfully\n");
+    }
+
+    sqlite3_close(db);
+}
+
+void db_update_dec_balance(sqlite3 *db, char *email, char *phone, int dec) {
+    int rc = sqlite3_open("database.db", &db);
+
+    char sql[256];
+    char *err_msg;
+
+    if (phone == NULL) {
+        sprintf(sql, "update users \
+                set balance = balance - %d where email = '%s';",
+                dec, email);
+    } else {
+        sprintf(sql, "update users \
+                set balance = balance - %d where phone_number = '%s';",
+                dec, phone);
+    }
+
+    rc = sqlite3_exec(db, sql, callback, 0, &err_msg);
+
+    if (rc != SQLITE_OK){
+        fprintf(stderr, "SQL error : %s\n", err_msg);
+        sqlite3_free(err_msg);
+    }
+    else {
+        fprintf(stdout, "Record updated successfully\n");
+    }
+
+    sqlite3_close(db);
+}
+
+int db_check_user_in_table(sqlite3 *db, char *email, char *phone) {
+    int rc = sqlite3_open("database.db", &db);
+
+    sqlite3_stmt* stmt = 0;
+    char *result_str = NULL;
+
+    char sql[128];
+    if (phone == NULL) {
+        sprintf(sql, "select count(*) from users where email = '%s'", email);
+    } else {
+        sprintf(
+            sql,"select count(*) from users where phone_number = '%s'", phone);
+    }
+
+    rc = sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
+
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(db));
+    } else {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            ssize_t needed = snprintf(
+                NULL, 0, "%s",
+                sqlite3_column_text(stmt, 0));
+
+            result_str = malloc(needed + 1);
+            sprintf(result_str, "%s", sqlite3_column_text(stmt, 0));
+        }
+    }
+
+    sqlite3_close(db);
+    int result;
+    sscanf(result_str, "%d", &result);
+
+    return result;
 }
 
