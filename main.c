@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "common.h"
 #include "login.h"
 #include "admin.h"
@@ -6,10 +7,11 @@
 
 int main()
 {
-    int login_result = main_menu();
-
-    switch (login_result)
+    while (1)
     {
+        int login_result = main_menu();
+        switch (login_result)
+        {
         case ADMIN:
             admin_menu();
             break;
@@ -18,8 +20,7 @@ int main()
             break;
         default:
             exit(0);
+        }
     }
-    
     return 0;
 }
-
